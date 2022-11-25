@@ -18,5 +18,14 @@ export default function Home() {
 
   if (isLoading) return <div>로딩중</div>;
 
-  return <Container>asasdasd</Container>;
+  return (
+    <Container>
+      {data?.map(current => (
+        <div key={current.currency}>
+          <span>통화: {current.currency}/ </span>
+          <span>잔고: {parseFloat(current.balance)}</span>
+        </div>
+      ))}
+    </Container>
+  );
 }

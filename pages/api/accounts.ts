@@ -8,9 +8,9 @@ type Error = {
 
 export type AccountData = {
   currency: string;
-  balance: number;
-  locked: number;
-  avg_buy_price: number;
+  balance: string;
+  locked: string;
+  avg_buy_price: string;
   avg_buy_price_modified: boolean;
   unit_currency: string;
 };
