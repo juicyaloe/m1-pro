@@ -3,6 +3,7 @@
 ### 업비트 api를 이용한 가상화폐 거래 앱입니다.
 
 #### 사용한 라이브러리
+- @emotion/styled
 - @tanstack/react-query
 - jsonwebtoken
 - uuid
