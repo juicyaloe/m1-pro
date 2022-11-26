@@ -17,6 +17,10 @@ const Currency = styled.div`
 
   margin: 10px 0px;
   padding: 5px 3px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 `;
 
 const CaptionText = styled.span`
@@ -27,6 +31,11 @@ const CaptionText = styled.span`
 
 const NormalText = styled.span`
   font-size: 15px;
+`;
+
+const ExplainText = styled.div`
+  font-size: 13px;
+  padding: 3px 0;
 `;
 
 async function get_accounts() {
@@ -40,6 +49,8 @@ export default function Home() {
     get_accounts,
   );
 
+  const [hover, setHover] = useState<string>('');
+
   if (isLoading) return <div>로딩중</div>;
 
   return (
@@ -48,19 +59,25 @@ export default function Home() {
         <Currency
           key={current.currency}
           data-id={current.currency}
-          onMouseEnter={e => console.log(e)}
-          onMouseLeave={(e: any) => console.log(e.target.dataset.id)}
+          onMouseEnter={(e: any) => setHover(e.target.dataset.id)}
         >
-          <CaptionText>{current.currency}: </CaptionText>
-          <NormalText>
-            {parseInt(current.balance)}{' '}
-            {current.currency != 'KRW'
-              ? `(원화 환산: ${
-                  parseFloat(current.balance) *
-                  parseFloat(current.avg_buy_price)
-                }원)`
-              : ''}
-          </NormalText>
+          <div>
+            <CaptionText>{current.currency}: </CaptionText>
+            <NormalText>{parseInt(current.balance)}</NormalText>
+          </div>
+          {hover == current.currency && (
+            <div>
+              <ExplainText>
+                보유 중인 수량: {current.balance} {current.currency}
+              </ExplainText>
+              <ExplainText>
+                주문 중인 수량: {current.locked} {current.currency}
+              </ExplainText>
+              <ExplainText>
+                매수 평균가: {current.avg_buy_price} {current.unit_currency}
+              </ExplainText>
+            </div>
+          )}
         </Currency>
       ))}
     </AccountContainer>
