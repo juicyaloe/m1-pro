@@ -46,7 +46,7 @@ async function get_accounts() {
 }
 
 async function get_ticker(market: string | null) {
-  let response = await fetch(`/api/ticker?ticker=KRW-${market ?? ''}`);
+  let response = await fetch(`/api/ticker?ticker=KRW-${market ?? 'BTC'}`);
   if (!response.ok) throw new Error(response.statusText);
   return response.json();
 }
