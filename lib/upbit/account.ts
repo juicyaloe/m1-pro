@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const sign = require('jsonwebtoken').sign;
 
-async function accounts() {
+export default async function accounts() {
   const access_key: string = process.env.NEXT_PUBLIC_ACCESS_TOKEN as string;
   const secret_key: string = process.env.NEXT_PUBLIC_SECERT_TOKEN as string;
   const server_url: string = 'https://api.upbit.com/v1/accounts';
@@ -27,5 +27,3 @@ async function accounts() {
   let response_json = await response.json();
   return response_json;
 }
-
-export { accounts };
