@@ -1,8 +1,9 @@
 import styled from '@emotion/styled';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import type { AccountData } from './api/accounts';
+import type { TickerData } from './api/ticker';
 
 import { Container } from '../components/ui';
 
@@ -40,32 +41,52 @@ const ExplainText = styled.div`
 
 async function get_accounts() {
   let response = await fetch('/api/accounts');
+  if (!response.ok) throw new Error(response.statusText);
+  return response.json();
+}
+
+async function get_ticker(market: string | null) {
+  let response = await fetch(`/api/ticker?ticker=KRW-${market ?? ''}`);
+  if (!response.ok) throw new Error(response.statusText);
   return response.json();
 }
 
 export default function Home() {
-  const { data, isLoading } = useQuery<AccountData[]>(
-    ['accounts'],
-    get_accounts,
-  );
+  const [hover, setHover] = useState<string | null>(null);
+  const money = useMemo(() => 'KRW', []);
 
-  const [hover, setHover] = useState<string>('');
+  const { data: accounts, isLoading: accounts_loading } = useQuery<
+    AccountData[]
+  >(['accounts'], get_accounts);
+  const {
+    data: ticker,
+    isLoading: ticker_loading,
+    isSuccess: ticker_success,
+  } = useQuery<TickerData>(['ticker', hover], () => get_ticker(hover));
 
-  if (isLoading) return <div>로딩중</div>;
+  if (accounts_loading)
+    return <Container>로딩중입니다.. 조금만 기다려주세요</Container>;
 
   return (
     <AccountContainer>
-      {data?.map(current => (
+      {accounts?.map(current => (
         <Currency
           key={current.currency}
           data-id={current.currency}
-          onMouseEnter={(e: any) => setHover(e.target.dataset.id)}
+          onMouseEnter={(e: any) => {
+            if (e.target.dataset.id == money) return;
+            setHover(e.target.dataset.id);
+          }}
         >
           <div>
             <CaptionText>{current.currency}: </CaptionText>
-            <NormalText>{parseInt(current.balance)}</NormalText>
+            <NormalText>
+              {current.currency != money
+                ? current.balance + '개'
+                : parseInt(current.balance) + '원'}
+            </NormalText>
           </div>
-          {hover == current.currency && (
+          {hover == current.currency && hover != money && (
             <div>
               <ExplainText>
                 보유 중인 수량: {current.balance} {current.currency}
@@ -75,6 +96,28 @@ export default function Home() {
               </ExplainText>
               <ExplainText>
                 매수 평균가: {current.avg_buy_price} {current.unit_currency}
+              </ExplainText>
+              <ExplainText>
+                구입 당시 가치:{' '}
+                {(
+                  parseFloat(current.balance) *
+                  parseFloat(current.avg_buy_price)
+                ).toFixed()}{' '}
+                {current.unit_currency}
+              </ExplainText>
+              <ExplainText>
+                현재 가격:{' '}
+                {ticker_success
+                  ? `${ticker.trade_price} ${current.unit_currency}`
+                  : `0 ${current.unit_currency}`}
+              </ExplainText>
+              <ExplainText>
+                현재 가치:{' '}
+                {ticker_success
+                  ? `${(
+                      parseFloat(current.balance) * ticker.trade_price
+                    ).toFixed()} ${current.unit_currency}`
+                  : `0 ${current.unit_currency}`}
               </ExplainText>
             </div>
           )}

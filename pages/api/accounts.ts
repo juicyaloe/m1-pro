@@ -24,8 +24,8 @@ export default async function handler(
   }
 
   try {
-    let get_accounts = await accounts();
-    res.status(200).json(get_accounts as AccountData[]);
+    let get_accounts: AccountData[] = await accounts();
+    res.status(200).json(get_accounts);
   } catch (err: any) {
     res.status(500).json({ err: err, message: 'Not expected error!' });
   }
